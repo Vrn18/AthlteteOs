@@ -14,12 +14,14 @@ import {
   LogOut,
   ChevronRight,
   Sparkles,
+  Radio,
 } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import { Badge } from '@/components/ui/badge'
 
 const navItems = [
   { label: 'Overview', href: '/dashboard', icon: LayoutDashboard },
+  { label: 'SOS Sub Radar', href: '/dashboard/radar', icon: Radio, badge: '🔥 Live', badgeColor: 'bg-red-100 text-red-700' },
   { label: 'Smart Discovery', href: '/dashboard/discover', icon: Compass, badge: 'Scoring' },
   { label: 'Matches & Events', href: '/dashboard/matches', icon: Trophy, badge: '4 Open' },
   { label: 'Community Chat', href: '/dashboard/messages', icon: MessageSquare, badge: '2' },
@@ -44,7 +46,7 @@ export function DashboardSidebar() {
                 Athlete<span className="text-brand-bright">OS</span>
               </span>
               <span className="text-[9px] uppercase tracking-wider text-muted-foreground font-semibold -mt-1">
-                Dashboard Core
+                Next-Gen Sports OS
               </span>
             </div>
           </Link>
@@ -90,7 +92,7 @@ export function DashboardSidebar() {
                       'text-[10px] px-2 py-0.5 rounded-full font-bold',
                       isActive
                         ? 'bg-white/20 text-white'
-                        : 'bg-blue-50 text-brand-bright'
+                        : item.badgeColor || 'bg-blue-50 text-brand-bright'
                     )}
                   >
                     {item.badge}
@@ -113,7 +115,7 @@ export function DashboardSidebar() {
             <Badge variant="bright" className="text-[9px] py-0 px-1.5">Active</Badge>
           </div>
           <p className="text-[10px] text-slate-500">
-            3x Boosted Discovery & Multi-Sport Telemetry
+            💎 Diamond Karma (98%) • 1540 Elo
           </p>
         </div>
 

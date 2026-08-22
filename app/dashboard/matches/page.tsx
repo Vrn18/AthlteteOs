@@ -13,6 +13,11 @@ import {
   MessageSquare,
   Sparkles,
   ArrowRight,
+  Radio,
+  CreditCard,
+  Award,
+  ChevronDown,
+  ChevronUp,
 } from 'lucide-react'
 import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
@@ -23,11 +28,19 @@ import { Dialog, DialogHeader, DialogTitle, DialogDescription, DialogFooter } fr
 import { SimpleSelect } from '@/components/ui/select'
 import { CURRENT_USER, INITIAL_MATCHES, INITIAL_SPORTS } from '@/lib/store'
 import { Match, SkillLevel } from '@/types/database'
+import { SOSRadarModal } from '@/components/dashboard/sos-radar-modal'
+import { FeeSplitCard } from '@/components/dashboard/fee-split-card'
+import { PostMatchReviewModal } from '@/components/dashboard/post-match-review-modal'
 
 export default function MatchesPage() {
   const [matches, setMatches] = useState<Match[]>(INITIAL_MATCHES)
   const [selectedSport, setSelectedSport] = useState<string>('all')
   const [isHostModalOpen, setIsHostModalOpen] = useState(false)
+  const [expandedFeeSplit, setExpandedFeeSplit] = useState<string | null>(null)
+  
+  // Modals for next-level MVP features
+  const [sosModalMatch, setSosModalMatch] = useState<Match | null>(null)
+  const [reviewModalMatch, setReviewModalMatch] = useState<Match | null>(null)
 
   // Host match form state
   const [newTitle, setNewTitle] = useState('')
@@ -36,6 +49,7 @@ export default function MatchesPage() {
   const [newSkill, setNewSkill] = useState<SkillLevel>('Intermediate')
   const [newStartTime, setNewStartTime] = useState('')
   const [newMaxPlayers, setNewMaxPlayers] = useState(12)
+  const [newTurfCost, setNewTurfCost] = useState(2400)
   const [newDescription, setNewDescription] = useState('')
 
   // Filtered matches
@@ -68,6 +82,7 @@ export default function MatchesPage() {
                   profile_avatar: CURRENT_USER.avatar_url,
                   skill_level: 'Advanced',
                   status: 'confirmed',
+                  payment_status: 'paid',
                   joined_at: new Date().toISOString(),
                 },
               ],
@@ -85,6 +100,8 @@ export default function MatchesPage() {
     if (!newTitle.trim() || !newLocation.trim()) return
 
     const sportObj = INITIAL_SPORTS.find((s) => s.id === newSport) || INITIAL_SPORTS[0]
+    const maxPlayers = Number(newMaxPlayers) || 10
+    const turfCost = Number(newTurfCost) || 2000
 
     const createdMatch: Match = {
       id: `match_${Date.now()}`,
@@ -102,9 +119,11 @@ export default function MatchesPage() {
       longitude: 77.5946,
       skill_level: newSkill,
       start_time: newStartTime.trim() || 'Tomorrow, 7:00 PM',
-      max_players: Number(newMaxPlayers) || 10,
+      max_players: maxPlayers,
       current_players: 1,
       status: 'open',
+      total_turf_cost: turfCost,
+      fee_per_player: Math.round(turfCost / maxPlayers),
       participants: [
         {
           match_id: `match_${Date.now()}`,
@@ -113,6 +132,7 @@ export default function MatchesPage() {
           profile_avatar: CURRENT_USER.avatar_url,
           skill_level: 'Advanced',
           status: 'confirmed',
+          payment_status: 'paid',
           joined_at: new Date().toISOString(),
         },
       ],
@@ -138,18 +158,27 @@ export default function MatchesPage() {
             </h1>
           </div>
           <p className="text-xs sm:text-sm text-slate-600 mt-1">
-            Browse open turf games, friendly sparring, and tournaments in Bangalore.
+            Browse turf games, friendly matches, split ground costs, and trigger emergency SOS subs.
           </p>
         </div>
 
-        <Button
-          variant="bright"
-          onClick={() => setIsHostModalOpen(true)}
-          className="font-bold gap-2 shadow-md hover:shadow-lg self-start sm:self-auto"
-        >
-          <Plus className="h-4 w-4" />
-          <span>Host a Match / Session</span>
-        </Button>
+        <div className="flex flex-wrap items-center gap-2">
+          <Link href="/dashboard/radar">
+            <Button variant="destructive" className="font-bold gap-2 bg-red-600 hover:bg-red-700 shadow-md">
+              <Radio className="h-4 w-4" />
+              <span>SOS Radar Feed</span>
+            </Button>
+          </Link>
+
+          <Button
+            variant="bright"
+            onClick={() => setIsHostModalOpen(true)}
+            className="font-bold gap-2 shadow-md hover:shadow-lg"
+          >
+            <Plus className="h-4 w-4" />
+            <span>Host a Match</span>
+          </Button>
+        </div>
       </div>
 
       {/* Sport Category Filter Tabs */}
@@ -185,6 +214,8 @@ export default function MatchesPage() {
         {filteredMatches.map((match) => {
           const isJoined = match.participants.some((p) => p.profile_id === CURRENT_USER.id)
           const fillPercentage = Math.min(100, Math.round((match.current_players / match.max_players) * 100))
+          const spotsLeft = match.max_players - match.current_players
+          const isFeeSplitOpen = expandedFeeSplit === match.id
 
           return (
             <Card
@@ -203,9 +234,22 @@ export default function MatchesPage() {
                     </Badge>
                   </div>
 
-                  <span className="text-xs font-extrabold text-amber-600 bg-amber-50 px-2.5 py-1 rounded-xl border border-amber-200">
-                    {match.current_players} / {match.max_players} Roster
-                  </span>
+                  <div className="flex items-center gap-2">
+                    {spotsLeft > 0 && spotsLeft <= 3 && (
+                      <Button
+                        size="sm"
+                        variant="destructive"
+                        onClick={() => setSosModalMatch(match)}
+                        className="h-7 text-[10px] font-bold px-2.5 bg-red-600 hover:bg-red-700"
+                      >
+                        <Radio className="h-3 w-3 mr-1" /> SOS Sub
+                      </Button>
+                    )}
+
+                    <span className="text-xs font-extrabold text-amber-600 bg-amber-50 px-2.5 py-1 rounded-xl border border-amber-200">
+                      {match.current_players} / {match.max_players} Roster
+                    </span>
+                  </div>
                 </div>
 
                 {/* Match Title & Description */}
@@ -219,7 +263,7 @@ export default function MatchesPage() {
                 </div>
 
                 {/* Logistics */}
-                <div className="space-y-1.5 pt-2 text-xs text-slate-600">
+                <div className="space-y-1.5 pt-1 text-xs text-slate-600">
                   <div className="flex items-center gap-2">
                     <Calendar className="h-3.5 w-3.5 text-brand-bright shrink-0" />
                     <span className="font-semibold text-slate-800">{match.start_time}</span>
@@ -231,7 +275,7 @@ export default function MatchesPage() {
                 </div>
 
                 {/* Roster Progress Bar */}
-                <div className="space-y-1 pt-2">
+                <div className="space-y-1 pt-1">
                   <div className="flex justify-between text-[10px] font-bold text-slate-500">
                     <span>Squad Capacity</span>
                     <span className="text-brand-bright">{fillPercentage}% Filled</span>
@@ -246,7 +290,7 @@ export default function MatchesPage() {
                   </div>
                 </div>
 
-                {/* Host Info */}
+                {/* Host Info & Quick Actions */}
                 <div className="flex items-center justify-between pt-3 border-t border-slate-100 text-xs">
                   <div className="flex items-center gap-2">
                     <Avatar
@@ -260,20 +304,44 @@ export default function MatchesPage() {
                     </div>
                   </div>
 
-                  <Link
-                    href="/dashboard/messages"
-                    className="text-xs font-bold text-brand-bright hover:underline flex items-center gap-1"
-                  >
-                    <MessageSquare className="h-3.5 w-3.5" /> Group Chat
-                  </Link>
+                  <div className="flex items-center gap-3">
+                    <button
+                      onClick={() => setExpandedFeeSplit(isFeeSplitOpen ? null : match.id)}
+                      className="text-xs font-semibold text-emerald-700 hover:underline flex items-center gap-1"
+                    >
+                      <CreditCard className="h-3.5 w-3.5" />
+                      <span>₹{match.fee_per_player || 200}/player</span>
+                      {isFeeSplitOpen ? <ChevronUp className="h-3 w-3" /> : <ChevronDown className="h-3 w-3" />}
+                    </button>
+
+                    <Link
+                      href="/dashboard/messages"
+                      className="text-xs font-bold text-brand-bright hover:underline flex items-center gap-1"
+                    >
+                      <MessageSquare className="h-3.5 w-3.5" /> Chat
+                    </Link>
+                  </div>
                 </div>
+
+                {/* Expandable Fee Splitter Ledger */}
+                {isFeeSplitOpen && (
+                  <div className="pt-2 animate-in slide-in-from-top-2">
+                    <FeeSplitCard matchId={match.id} />
+                  </div>
+                )}
               </div>
 
               {/* Card Footer Actions */}
               <div className="p-4 bg-slate-50 border-t border-slate-100 flex items-center justify-between">
-                <span className="text-xs text-slate-500 font-medium">
-                  {match.max_players - match.current_players} slot(s) available
-                </span>
+                <Button
+                  size="sm"
+                  variant="outline"
+                  onClick={() => setReviewModalMatch(match)}
+                  className="text-xs font-semibold gap-1 text-slate-700"
+                >
+                  <Award className="h-3.5 w-3.5 text-amber-500" />
+                  <span>Peer Review</span>
+                </Button>
 
                 <Button
                   size="sm"
@@ -283,7 +351,7 @@ export default function MatchesPage() {
                 >
                   {isJoined ? (
                     <span className="flex items-center gap-1">
-                      <CheckCircle2 className="h-3.5 w-3.5" /> Joined (Leave Match)
+                      <CheckCircle2 className="h-3.5 w-3.5" /> Joined (Leave)
                     </span>
                   ) : (
                     'RSVP & Join Match'
@@ -301,7 +369,7 @@ export default function MatchesPage() {
           <DialogHeader>
             <DialogTitle>Host a Match or Practice Session</DialogTitle>
             <DialogDescription>
-              Create a match and invite athletes in Bangalore with live slot reservations.
+              Create a match, configure turf fee splitting, and invite athletes in Bangalore.
             </DialogDescription>
           </DialogHeader>
 
@@ -353,7 +421,7 @@ export default function MatchesPage() {
               </div>
             </div>
 
-            <div className="grid grid-cols-2 gap-3">
+            <div className="grid grid-cols-3 gap-3">
               <div>
                 <label className="text-xs font-semibold text-slate-700 block mb-1">
                   Date & Time *
@@ -377,6 +445,21 @@ export default function MatchesPage() {
                   max="30"
                   value={newMaxPlayers}
                   onChange={(e) => setNewMaxPlayers(Number(e.target.value))}
+                  required
+                  className="text-xs"
+                />
+              </div>
+
+              <div>
+                <label className="text-xs font-semibold text-slate-700 block mb-1">
+                  Turf Cost (₹)
+                </label>
+                <Input
+                  type="number"
+                  min="0"
+                  step="100"
+                  value={newTurfCost}
+                  onChange={(e) => setNewTurfCost(Number(e.target.value))}
                   required
                   className="text-xs"
                 />
@@ -424,6 +507,24 @@ export default function MatchesPage() {
             </DialogFooter>
           </form>
         </Dialog>
+      )}
+
+      {/* SOS Radar Modal */}
+      {sosModalMatch && (
+        <SOSRadarModal
+          isOpen={!!sosModalMatch}
+          onClose={() => setSosModalMatch(null)}
+          initialMatch={sosModalMatch}
+        />
+      )}
+
+      {/* Post Match Peer Review Modal */}
+      {reviewModalMatch && (
+        <PostMatchReviewModal
+          isOpen={!!reviewModalMatch}
+          onClose={() => setReviewModalMatch(null)}
+          match={reviewModalMatch}
+        />
       )}
 
     </div>

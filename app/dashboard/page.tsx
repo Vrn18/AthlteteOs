@@ -17,6 +17,10 @@ import {
   CheckCircle2,
   TrendingUp,
   MessageSquare,
+  Radio,
+  Share2,
+  CreditCard,
+  Award,
 } from 'lucide-react'
 import { Card, CardHeader, CardTitle, CardDescription, CardContent } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
@@ -25,14 +29,18 @@ import { Avatar } from '@/components/ui/avatar'
 import {
   CURRENT_USER,
   CURRENT_USER_SPORTS,
+  CURRENT_USER_KARMA,
   INITIAL_MATCHES,
+  INITIAL_SOS_BROADCASTS,
   SEED_ATHLETES,
   USER_ACHIEVEMENTS,
 } from '@/lib/store'
 import { computeAthleteMatchScore } from '@/lib/matching-engine'
+import { SOSRadarModal } from '@/components/dashboard/sos-radar-modal'
 
 export default function DashboardPage() {
   const [matches, setMatches] = useState(INITIAL_MATCHES)
+  const [isSosModalOpen, setIsSosModalOpen] = useState(false)
 
   // Top 3 compatible athletes near Varun
   const topCompatibleAthletes = SEED_ATHLETES.map((athlete) =>
@@ -44,9 +52,41 @@ export default function DashboardPage() {
     })
   ).slice(0, 3)
 
+  const activeSos = INITIAL_SOS_BROADCASTS[0]
+
   return (
     <div className="space-y-8">
       
+      {/* 🚨 Emergency SOS Banner (Next-Level MVP Hero Trigger) */}
+      {activeSos && (
+        <div className="bg-gradient-to-r from-red-900 via-red-950 to-slate-900 text-white p-4 rounded-3xl border border-red-800/80 shadow-lg flex flex-col sm:flex-row items-center justify-between gap-4 animate-in slide-in-from-top-2">
+          <div className="flex items-center gap-3.5">
+            <div className="h-10 w-10 rounded-2xl bg-red-600/40 border border-red-500 text-red-300 flex items-center justify-center shrink-0">
+              <Radio className="h-5 w-5 animate-pulse" />
+            </div>
+            <div>
+              <div className="flex items-center gap-2">
+                <Badge variant="destructive" className="text-[9px] font-mono font-bold py-0">
+                  🔥 SOS RADAR ALERT
+                </Badge>
+                <span className="text-xs font-bold text-white">{activeSos.title}</span>
+              </div>
+              <p className="text-[11px] text-slate-300 mt-0.5">
+                {activeSos.spots_needed} sub needed • {activeSos.location} ({activeSos.distance_km} km) • {activeSos.kickoff_time}
+              </p>
+            </div>
+          </div>
+
+          <div className="flex items-center gap-2 w-full sm:w-auto justify-end">
+            <Link href="/dashboard/radar">
+              <Button size="sm" variant="destructive" className="text-xs font-bold bg-red-600 hover:bg-red-700 h-8">
+                Claim Spot / I'm In!
+              </Button>
+            </Link>
+          </div>
+        </div>
+      )}
+
       {/* 1. Welcome & Athlete Identity Card */}
       <div className="rounded-3xl bg-gradient-to-r from-brand-navy via-brand-blue to-brand-bright text-white p-6 sm:p-8 shadow-xl relative overflow-hidden">
         <div className="relative z-10 flex flex-col md:flex-row items-start md:items-center justify-between gap-6">
@@ -64,10 +104,13 @@ export default function DashboardPage() {
                 <Badge variant="bright" className="bg-sky-400 text-brand-navy font-black text-xs py-0.5 px-2">
                   <ShieldCheck className="h-3.5 w-3.5 mr-1" /> VERIFIED
                 </Badge>
+                <Badge variant="popular" className="font-mono text-xs">
+                  💎 98% Karma
+                </Badge>
               </div>
               <p className="text-xs sm:text-sm text-blue-100 flex items-center gap-1.5">
                 <MapPin className="h-3.5 w-3.5 text-sky-300" />
-                {CURRENT_USER.city} • @{CURRENT_USER.username}
+                {CURRENT_USER.city} • 1540 ELO • @{CURRENT_USER.username}
               </p>
               <p className="text-xs text-blue-100/90 max-w-xl line-clamp-1">
                 {CURRENT_USER.bio}
@@ -75,16 +118,17 @@ export default function DashboardPage() {
             </div>
           </div>
 
-          <div className="flex flex-wrap items-center gap-3 w-full md:w-auto">
-            <Link href="/dashboard/matches">
-              <Button variant="bright" className="w-full sm:w-auto font-bold gap-2 bg-white text-brand-navy hover:bg-white/90 shadow-md">
-                <Plus className="h-4 w-4" />
-                <span>Host Match</span>
+          <div className="flex flex-wrap items-center gap-2.5 w-full md:w-auto">
+            <Link href={`/passport/${CURRENT_USER.username}`} target="_blank">
+              <Button variant="outline" className="font-bold border-white/30 text-white hover:bg-white/10 text-xs">
+                <Share2 className="h-3.5 w-3.5 mr-1" /> Passport Card
               </Button>
             </Link>
-            <Link href="/dashboard/discover">
-              <Button variant="outline" className="w-full sm:w-auto font-medium border-white/30 text-white hover:bg-white/10">
-                <Compass className="h-4 w-4 mr-1.5" /> Discover
+
+            <Link href="/dashboard/matches">
+              <Button variant="bright" className="font-bold gap-1.5 bg-white text-brand-navy hover:bg-white/90 shadow-md text-xs">
+                <Plus className="h-3.5 w-3.5" />
+                <span>Host Match</span>
               </Button>
             </Link>
           </div>
@@ -104,11 +148,11 @@ export default function DashboardPage() {
 
         <div className="bg-white p-5 rounded-2xl border border-slate-200 shadow-2xs space-y-1">
           <div className="flex items-center justify-between text-xs text-slate-500 font-medium">
-            <span>Matches Played</span>
+            <span>Skill Rating</span>
             <Trophy className="h-4 w-4 text-amber-500" />
           </div>
-          <div className="text-2xl font-black text-brand-navy">{CURRENT_USER.matches_played}</div>
-          <div className="text-[11px] text-green-600 font-semibold">+6 this month</div>
+          <div className="text-2xl font-black text-brand-navy">{CURRENT_USER.elo_rating} ELO</div>
+          <div className="text-[11px] text-green-600 font-semibold">Tier 4 Pro Division</div>
         </div>
 
         <div className="bg-white p-5 rounded-2xl border border-slate-200 shadow-2xs space-y-1">
@@ -122,11 +166,11 @@ export default function DashboardPage() {
 
         <div className="bg-white p-5 rounded-2xl border border-slate-200 shadow-2xs space-y-1">
           <div className="flex items-center justify-between text-xs text-slate-500 font-medium">
-            <span>Reliability Rating</span>
-            <Star className="h-4 w-4 text-amber-400 fill-amber-400" />
+            <span>Anti-Ghosting Karma</span>
+            <ShieldCheck className="h-4 w-4 text-brand-bright" />
           </div>
-          <div className="text-2xl font-black text-brand-navy">{CURRENT_USER.rating} / 5.0</div>
-          <div className="text-[11px] text-slate-500 font-semibold">0% flake/ghost rate</div>
+          <div className="text-2xl font-black text-brand-navy">{CURRENT_USER_KARMA.overall_karma}%</div>
+          <div className="text-[11px] text-emerald-600 font-semibold">💎 Diamond Tier Reliability</div>
         </div>
       </div>
 
@@ -139,7 +183,7 @@ export default function DashboardPage() {
           <div className="flex items-center justify-between">
             <div>
               <h2 className="text-xl font-bold text-brand-navy">Your Active Match Schedule</h2>
-              <p className="text-xs text-slate-500">Upcoming games with confirmed rosters and venue locations.</p>
+              <p className="text-xs text-slate-500">Upcoming games with confirmed rosters, turf splitting, and chat.</p>
             </div>
             <Link href="/dashboard/matches" className="text-xs font-bold text-brand-bright hover:underline flex items-center gap-1">
               Browse All ({matches.length}) <ArrowRight className="h-3.5 w-3.5" />
@@ -175,6 +219,10 @@ export default function DashboardPage() {
                           <MapPin className="h-3.5 w-3.5 text-slate-400" />
                           {match.location}
                         </span>
+                        <span>•</span>
+                        <span className="text-emerald-700 font-semibold flex items-center gap-0.5">
+                          <CreditCard className="h-3 w-3" /> ₹{match.fee_per_player || 200}/player
+                        </span>
                       </p>
                     </div>
 
@@ -203,63 +251,25 @@ export default function DashboardPage() {
                       <span className="font-bold text-slate-800">{match.creator_name}</span>
                     </div>
 
-                    <Link
-                      href="/dashboard/messages"
-                      className="text-xs font-semibold text-brand-blue hover:text-brand-bright flex items-center gap-1"
-                    >
-                      <MessageSquare className="h-3.5 w-3.5" /> Match Group Chat →
-                    </Link>
+                    <div className="flex items-center gap-3">
+                      <Link
+                        href="/dashboard/matches"
+                        className="text-xs font-semibold text-emerald-700 hover:underline"
+                      >
+                        Turf Fee Ledger →
+                      </Link>
+
+                      <Link
+                        href="/dashboard/messages"
+                        className="text-xs font-semibold text-brand-blue hover:text-brand-bright flex items-center gap-1"
+                      >
+                        <MessageSquare className="h-3.5 w-3.5" /> Group Chat →
+                      </Link>
+                    </div>
                   </div>
                 </div>
               )
             })}
-          </div>
-
-          {/* Quick Universal Profile Sport Switcher Showcase */}
-          <div className="bg-white p-6 rounded-3xl border border-slate-200 space-y-4">
-            <div className="flex items-center justify-between">
-              <div>
-                <h3 className="text-base font-bold text-brand-navy">Universal Multi-Sport Snapshot</h3>
-                <p className="text-xs text-slate-500">Your sport-specific performance details.</p>
-              </div>
-              <Link href="/dashboard/profile">
-                <Button size="sm" variant="outline" className="text-xs">
-                  Manage Sports
-                </Button>
-              </Link>
-            </div>
-
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-              {CURRENT_USER_SPORTS.map((sport) => (
-                <div
-                  key={sport.id}
-                  className="p-3.5 rounded-2xl bg-slate-50 border border-slate-200/80 space-y-2"
-                >
-                  <div className="flex items-center justify-between">
-                    <div className="flex items-center gap-2">
-                      <span className="text-base">{sport.sport_name === 'Cricket' ? '🏏' : sport.sport_name === 'Football' ? '⚽' : sport.sport_name === 'Badminton' ? '🏸' : '🏃‍♂️'}</span>
-                      <span className="font-bold text-xs text-brand-navy">{sport.sport_name}</span>
-                    </div>
-                    <Badge variant="brand" className="text-[10px] py-0 px-1.5">
-                      {sport.skill_level}
-                    </Badge>
-                  </div>
-
-                  <div className="grid grid-cols-1 gap-1 text-[11px] text-slate-600 font-medium">
-                    {Object.entries(sport.sport_data).map(([key, value]) => (
-                      <div key={key} className="flex items-center justify-between gap-3">
-                        <span className="text-slate-500">
-                          {key.replace(/([A-Z])/g, ' $1').replace(/^./, (letter) => letter.toUpperCase())}
-                        </span>
-                        <span className="text-right text-brand-navy">
-                          {String(value)}
-                        </span>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-              ))}
-            </div>
           </div>
 
         </div>

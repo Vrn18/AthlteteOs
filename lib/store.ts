@@ -8,6 +8,10 @@ import {
   Message,
   PerformanceRecord,
   Achievement,
+  SOSBroadcast,
+  PeerReview,
+  MatchFeeLedger,
+  AthleteKarma,
 } from "@/types/database"
 
 export const INITIAL_SPORTS: Sport[] = [
@@ -35,7 +39,19 @@ export const CURRENT_USER: Profile = {
   rating: 4.9,
   matches_played: 34,
   win_rate: 76,
+  elo_rating: 1540,
+  karma_score: 98,
   created_at: "2025-01-15T10:00:00Z",
+}
+
+export const CURRENT_USER_KARMA: AthleteKarma = {
+  overall_karma: 98,
+  punctuality_rate: 100,
+  sportsmanship_rate: 97,
+  skill_accuracy_rate: 96,
+  total_reviews: 28,
+  elo_rating: 1540,
+  badge_tier: "Diamond",
 }
 
 export const CURRENT_USER_SPORTS: AthleteSport[] = [
@@ -121,6 +137,8 @@ export const SEED_ATHLETES: Array<{ profile: Profile; athleteSports: AthleteSpor
       rating: 4.8,
       matches_played: 52,
       win_rate: 81,
+      elo_rating: 1610,
+      karma_score: 96,
       created_at: "2025-02-10T12:00:00Z",
     },
     athleteSports: [
@@ -156,6 +174,8 @@ export const SEED_ATHLETES: Array<{ profile: Profile; athleteSports: AthleteSpor
       rating: 4.5,
       matches_played: 29,
       win_rate: 68,
+      elo_rating: 1420,
+      karma_score: 92,
       created_at: "2025-03-01T09:00:00Z",
     },
     athleteSports: [
@@ -190,6 +210,8 @@ export const SEED_ATHLETES: Array<{ profile: Profile; athleteSports: AthleteSpor
       rating: 4.95,
       matches_played: 88,
       win_rate: 89,
+      elo_rating: 1780,
+      karma_score: 99,
       created_at: "2024-11-20T14:00:00Z",
     },
     athleteSports: [
@@ -224,6 +246,8 @@ export const SEED_ATHLETES: Array<{ profile: Profile; athleteSports: AthleteSpor
       rating: 4.7,
       matches_played: 45,
       win_rate: 74,
+      elo_rating: 1520,
+      karma_score: 95,
       created_at: "2025-01-28T16:00:00Z",
     },
     athleteSports: [
@@ -244,39 +268,62 @@ export const SEED_ATHLETES: Array<{ profile: Profile; athleteSports: AthleteSpor
       },
     ],
   },
+]
+
+export const INITIAL_SOS_BROADCASTS: SOSBroadcast[] = [
   {
-    profile: {
-      id: "usr_ananya_06",
-      username: "ananyarun",
-      full_name: "Ananya Roy",
-      avatar_url: "https://images.unsplash.com/photo-1544005313-94ddf0286df2?w=150&auto=format&fit=crop&q=80",
-      bio: "Marathon runner & pacer. Building weekend 10k running clusters in Cubbon Park & Ulsoor.",
-      city: "Bangalore (Ulsoor)",
-      latitude: 12.9815,
-      longitude: 77.6201,
-      verification_status: "verified",
-      role: "athlete",
-      rating: 4.9,
-      matches_played: 61,
-      win_rate: 92,
-      created_at: "2024-12-15T08:00:00Z",
-    },
-    athleteSports: [
-      {
-        id: "as_ananya_01",
-        profile_id: "usr_ananya_06",
-        sport_id: "running",
-        sport_name: "Running",
-        sport_icon: "Zap",
-        skill_level: "Advanced",
-        experience_years: 5,
-        sport_data: {
-          marathonPB: "3h 24m",
-          pace10k: "4:15 min/km",
-          shoes: "Nike Vaporfly 3",
-        },
-      },
-    ],
+    id: "sos_01",
+    match_id: "match_02",
+    sport_id: "football",
+    sport_name: "Football",
+    sport_icon: "Trophy",
+    title: "5v5 Fast-Paced Turf Football Match",
+    location: "Kicks on Grass, Bellandur",
+    distance_km: 2.8,
+    spots_needed: 1,
+    kickoff_time: "Starts in 45 mins",
+    expires_in_minutes: 35,
+    host_name: "Rohit Varma",
+    host_avatar: "https://images.unsplash.com/photo-1519085360753-af0119f7cbe7?w=150&auto=format&fit=crop&q=80",
+    host_rating: 4.7,
+    bounty_perk: "Turf fee 50% subsidized by captain",
+    urgency_level: "critical",
+  },
+  {
+    id: "sos_02",
+    match_id: "match_01",
+    sport_id: "cricket",
+    sport_name: "Cricket",
+    sport_icon: "Bat",
+    title: "Weekend T20 Friendly (Turf Underlights)",
+    location: "Play Arena, Sarjapur Road",
+    distance_km: 4.2,
+    spots_needed: 2,
+    kickoff_time: "Today, 6:30 PM",
+    expires_in_minutes: 110,
+    host_name: "Rahul Sharma",
+    host_avatar: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=150&auto=format&fit=crop&q=80",
+    host_rating: 4.8,
+    bounty_perk: "Leather match kit provided",
+    urgency_level: "high",
+  },
+  {
+    id: "sos_03",
+    match_id: "match_03",
+    sport_id: "badminton",
+    sport_name: "Badminton",
+    sport_icon: "Activity",
+    title: "Competitive Doubles Sparring Session",
+    location: "Smash Arena, Indiranagar",
+    distance_km: 1.2,
+    spots_needed: 1,
+    kickoff_time: "Tonight, 8:00 PM",
+    expires_in_minutes: 180,
+    host_name: "Priya Patel",
+    host_avatar: "https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=150&auto=format&fit=crop&q=80",
+    host_rating: 4.95,
+    bounty_perk: "Yonex shuttlecocks provided",
+    urgency_level: "medium",
   },
 ]
 
@@ -298,8 +345,12 @@ export const INITIAL_MATCHES: Match[] = [
     skill_level: "Intermediate",
     start_time: "Saturday, 6:30 PM",
     max_players: 22,
-    current_players: 18,
+    current_players: 20,
     status: "open",
+    is_sos_active: true,
+    sos_needed_count: 2,
+    total_turf_cost: 4400,
+    fee_per_player: 200,
     participants: [
       {
         match_id: "match_01",
@@ -308,6 +359,7 @@ export const INITIAL_MATCHES: Match[] = [
         profile_avatar: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=150&auto=format&fit=crop&q=80",
         skill_level: "Advanced",
         status: "confirmed",
+        payment_status: "paid",
         joined_at: "2025-08-20T10:00:00Z",
       },
       {
@@ -317,6 +369,7 @@ export const INITIAL_MATCHES: Match[] = [
         profile_avatar: "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150&auto=format&fit=crop&q=80",
         skill_level: "Advanced",
         status: "confirmed",
+        payment_status: "paid",
         joined_at: "2025-08-21T11:00:00Z",
       },
     ],
@@ -338,8 +391,12 @@ export const INITIAL_MATCHES: Match[] = [
     skill_level: "Advanced",
     start_time: "Sunday, 7:00 AM",
     max_players: 10,
-    current_players: 8,
+    current_players: 9,
     status: "open",
+    is_sos_active: true,
+    sos_needed_count: 1,
+    total_turf_cost: 2000,
+    fee_per_player: 200,
     participants: [
       {
         match_id: "match_02",
@@ -348,6 +405,7 @@ export const INITIAL_MATCHES: Match[] = [
         profile_avatar: "https://images.unsplash.com/photo-1519085360753-af0119f7cbe7?w=150&auto=format&fit=crop&q=80",
         skill_level: "Advanced",
         status: "confirmed",
+        payment_status: "paid",
         joined_at: "2025-08-20T12:00:00Z",
       },
     ],
@@ -371,6 +429,10 @@ export const INITIAL_MATCHES: Match[] = [
     max_players: 4,
     current_players: 3,
     status: "open",
+    is_sos_active: true,
+    sos_needed_count: 1,
+    total_turf_cost: 800,
+    fee_per_player: 200,
     participants: [
       {
         match_id: "match_03",
@@ -379,6 +441,7 @@ export const INITIAL_MATCHES: Match[] = [
         profile_avatar: "https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=150&auto=format&fit=crop&q=80",
         skill_level: "Professional",
         status: "confirmed",
+        payment_status: "paid",
         joined_at: "2025-08-22T08:00:00Z",
       },
       {
@@ -388,6 +451,7 @@ export const INITIAL_MATCHES: Match[] = [
         profile_avatar: "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150&auto=format&fit=crop&q=80",
         skill_level: "Advanced",
         status: "confirmed",
+        payment_status: "paid",
         joined_at: "2025-08-22T09:30:00Z",
       },
     ],
@@ -412,6 +476,71 @@ export const INITIAL_MATCHES: Match[] = [
     current_players: 24,
     status: "open",
     participants: [],
+  },
+]
+
+export const INITIAL_FEE_LEDGERS: Record<string, MatchFeeLedger> = {
+  match_01: {
+    match_id: "match_01",
+    total_turf_cost: 4400,
+    per_player_cost: 200,
+    currency: "INR",
+    is_escrow_active: true,
+    players: [
+      {
+        profile_id: "usr_rahul_02",
+        name: "Rahul Sharma",
+        avatar: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=150&auto=format&fit=crop&q=80",
+        amount: 200,
+        status: "paid",
+        paid_at: "Aug 20, 10:05 AM",
+      },
+      {
+        profile_id: "usr_varun_01",
+        name: "Varun Gangam",
+        avatar: "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150&auto=format&fit=crop&q=80",
+        amount: 200,
+        status: "paid",
+        paid_at: "Aug 21, 11:15 AM",
+      },
+      {
+        profile_id: "usr_arjun_03",
+        name: "Arjun Kumar",
+        avatar: "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=150&auto=format&fit=crop&q=80",
+        amount: 200,
+        status: "deposit_locked",
+        paid_at: "Aug 22, 09:00 AM",
+      },
+    ],
+  },
+}
+
+export const INITIAL_PEER_REVIEWS: PeerReview[] = [
+  {
+    id: "rev_01",
+    match_id: "match_01",
+    match_title: "Weekend T20 Friendly Match",
+    reviewer_id: "usr_rahul_02",
+    target_id: "usr_varun_01",
+    target_name: "Varun Gangam",
+    punctuality: "on_time",
+    sportsmanship: "positive",
+    skill_accuracy: "accurate",
+    feedback: "Arrived 15 mins early with match balls. Great batting acceleration in death overs!",
+    created_at: "Aug 21, 2025",
+  },
+  {
+    id: "rev_02",
+    match_id: "match_03",
+    match_title: "Competitive Doubles Sparring Session",
+    reviewer_id: "usr_priya_04",
+    target_id: "usr_varun_01",
+    target_name: "Varun Gangam",
+    punctuality: "on_time",
+    sportsmanship: "positive",
+    skill_accuracy: "higher_than_stated",
+    feedback: "Super sharp front-court reflexes. Excellent partner to play with.",
+    created_at: "Aug 22, 2025",
   },
 ]
 

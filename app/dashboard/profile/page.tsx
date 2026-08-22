@@ -1,6 +1,7 @@
 'use client'
 
 import React, { useState } from 'react'
+import Link from 'next/link'
 import {
   User,
   ShieldCheck,
@@ -15,6 +16,8 @@ import {
   Sparkles,
   Award,
   Zap,
+  Share2,
+  ExternalLink,
 } from 'lucide-react'
 import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
@@ -26,12 +29,14 @@ import { SimpleSelect } from '@/components/ui/select'
 import {
   CURRENT_USER,
   CURRENT_USER_SPORTS,
+  CURRENT_USER_KARMA,
   USER_ACHIEVEMENTS,
   USER_PERFORMANCE,
 } from '@/lib/store'
 import { AthleteSport, SkillLevel } from '@/types/database'
+import { AthletePassportCard } from '@/components/dashboard/athlete-passport-card'
 
-function AthleteProfileView() {
+export default function ProfilePage() {
   const [profile, setProfile] = useState(CURRENT_USER)
   const [sports, setSports] = useState<AthleteSport[]>(CURRENT_USER_SPORTS)
   const [activeSportId, setActiveSportId] = useState<string>('cricket')
@@ -57,7 +62,7 @@ function AthleteProfileView() {
     )
   }
 
-  const handleAddCustomMetric = () => {
+  const handleAddCustomJsonbStat = () => {
     if (!newStatKey.trim() || !newStatValue.trim() || !selectedSportToEdit) return
     const updatedSports = sports.map((s) => {
       if (s.id === selectedSportToEdit.id) {
@@ -80,7 +85,7 @@ function AthleteProfileView() {
   return (
     <div className="space-y-8">
       
-      {/* Profile Header Banner */}
+      {/* Top Banner Profile Summary */}
       <div className="bg-white rounded-3xl border-2 border-slate-200 p-6 sm:p-8 shadow-sm space-y-6">
         <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-6">
           
@@ -98,8 +103,11 @@ function AthleteProfileView() {
                 <Badge variant="bright" className="font-bold text-xs py-0.5 px-2.5">
                   <ShieldCheck className="h-3.5 w-3.5 mr-1" /> VERIFIED ATHLETE
                 </Badge>
+                <Badge variant="popular" className="font-mono text-xs">
+                  💎 98% Karma
+                </Badge>
               </div>
-              <p className="text-xs text-slate-500 flex items-center gap-2">
+              <p className="text-xs text-slate-500 flex flex-wrap items-center gap-x-2 gap-y-1">
                 <span className="font-mono font-semibold text-brand-blue">@{profile.username}</span>
                 <span>•</span>
                 <span className="flex items-center gap-1">
@@ -109,11 +117,20 @@ function AthleteProfileView() {
                 <span className="text-amber-500 font-bold flex items-center gap-0.5">
                   ★ {profile.rating} Rating
                 </span>
+                <span>•</span>
+                <span className="font-bold text-slate-700">1540 ELO</span>
               </p>
             </div>
           </div>
 
-          <div className="flex items-center gap-3">
+          <div className="flex items-center gap-2">
+            <Link href={`/passport/${profile.username}`} target="_blank">
+              <Button size="sm" variant="bright" className="text-xs font-bold gap-1.5 shadow-xs">
+                <Share2 className="h-3.5 w-3.5" />
+                <span>Share Passport</span>
+              </Button>
+            </Link>
+
             <Button
               variant="outline"
               size="sm"
@@ -121,7 +138,7 @@ function AthleteProfileView() {
               className="text-xs font-semibold gap-1.5"
             >
               <Edit3 className="h-3.5 w-3.5" />
-              <span>{isEditingBio ? 'Cancel Edit' : 'Edit Bio'}</span>
+              <span>{isEditingBio ? 'Cancel' : 'Edit Bio'}</span>
             </Button>
           </div>
 
@@ -149,13 +166,34 @@ function AthleteProfileView() {
 
       </div>
 
-      {/* Multi-Sport Profile Section */}
+      {/* 3D Holographic FUT-Style Athlete Passport Card Feature */}
+      <div className="bg-white rounded-3xl border-2 border-slate-200 p-6 sm:p-8 shadow-sm space-y-6">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-4 border-b border-slate-100">
+          <div>
+            <div className="flex items-center gap-2">
+              <Badge variant="popular" className="text-xs font-bold">VIRAL PASSPORT</Badge>
+              <h2 className="text-xl font-bold text-brand-navy">3D Digital Athletic Passport Card</h2>
+            </div>
+            <p className="text-xs text-slate-500 mt-0.5">
+              Customizable holographic card for Instagram & WhatsApp story sharing.
+            </p>
+          </div>
+        </div>
+
+        <AthletePassportCard
+          athlete={profile}
+          karma={CURRENT_USER_KARMA}
+          sports={sports}
+        />
+      </div>
+
+      {/* Multi-Sport JSONB Engine Section */}
       <div className="bg-white rounded-3xl border-2 border-slate-200 p-6 sm:p-8 shadow-sm space-y-6">
         
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-4 border-b border-slate-100">
           <div>
             <div className="flex items-center gap-2">
-              <Badge variant="brand" className="text-xs font-bold">Multi-Sport Profile</Badge>
+              <Badge variant="brand" className="text-xs font-bold">Multi-Sport JSONB</Badge>
               <h2 className="text-xl font-bold text-brand-navy">Universal Sports Telemetry</h2>
             </div>
             <p className="text-xs text-slate-500 mt-0.5">
@@ -214,7 +252,7 @@ function AthleteProfileView() {
           })}
         </div>
 
-        {/* Active Sport Details */}
+        {/* Active Sport Details & JSONB Record Viewer */}
         <div className="bg-slate-50 rounded-2xl border border-slate-200 p-5 sm:p-6 space-y-4">
           
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-3 border-b border-slate-200">
@@ -253,6 +291,17 @@ function AthleteProfileView() {
                 </span>
               </div>
             ))}
+          </div>
+
+          {/* Raw JSONB Schema Viewer */}
+          <div className="pt-2">
+            <div className="flex items-center justify-between text-[11px] font-bold text-slate-500 uppercase tracking-wider mb-1.5">
+              <span>PostgreSQL JSONB Sport Document:</span>
+              <span className="text-brand-bright font-mono">public.athlete_sports.sport_data</span>
+            </div>
+            <pre className="p-3 bg-slate-900 text-sky-300 rounded-xl text-xs font-mono overflow-x-auto shadow-inner">
+              {JSON.stringify(activeSport.sport_data, null, 2)}
+            </pre>
           </div>
 
         </div>
@@ -294,7 +343,7 @@ function AthleteProfileView() {
           <DialogHeader>
             <DialogTitle>Add Telemetry Attribute to {selectedSportToEdit.sport_name}</DialogTitle>
             <DialogDescription>
-              Add a custom value for any sport metric.
+              Custom JSONB attributes are dynamically structured for any sport metric.
             </DialogDescription>
           </DialogHeader>
 
@@ -327,7 +376,7 @@ function AthleteProfileView() {
             <Button variant="outline" size="sm" onClick={() => setEditStatModal(false)}>
               Cancel
             </Button>
-            <Button variant="bright" size="sm" onClick={handleAddCustomMetric}>
+            <Button variant="bright" size="sm" onClick={handleAddCustomJsonbStat}>
               Save to Athlete Profile
             </Button>
           </DialogFooter>
@@ -336,8 +385,4 @@ function AthleteProfileView() {
 
     </div>
   )
-}
-
-export default function ProfilePage() {
-  return <AthleteProfileView />
 }
