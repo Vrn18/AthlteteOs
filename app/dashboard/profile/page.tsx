@@ -62,7 +62,7 @@ export default function ProfilePage() {
     )
   }
 
-  const handleAddCustomJsonbStat = () => {
+  const handleAddCustomMetric = () => {
     if (!newStatKey.trim() || !newStatValue.trim() || !selectedSportToEdit) return
     const updatedSports = sports.map((s) => {
       if (s.id === selectedSportToEdit.id) {
@@ -187,13 +187,13 @@ export default function ProfilePage() {
         />
       </div>
 
-      {/* Multi-Sport JSONB Engine Section */}
+      {/* Multi-Sport Profile Section */}
       <div className="bg-white rounded-3xl border-2 border-slate-200 p-6 sm:p-8 shadow-sm space-y-6">
         
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-4 border-b border-slate-100">
           <div>
             <div className="flex items-center gap-2">
-              <Badge variant="brand" className="text-xs font-bold">Multi-Sport JSONB</Badge>
+              <Badge variant="brand" className="text-xs font-bold">Multi-Sport Profile</Badge>
               <h2 className="text-xl font-bold text-brand-navy">Universal Sports Telemetry</h2>
             </div>
             <p className="text-xs text-slate-500 mt-0.5">
@@ -252,7 +252,7 @@ export default function ProfilePage() {
           })}
         </div>
 
-        {/* Active Sport Details & JSONB Record Viewer */}
+        {/* Active Sport Details */}
         <div className="bg-slate-50 rounded-2xl border border-slate-200 p-5 sm:p-6 space-y-4">
           
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-3 border-b border-slate-200">
@@ -291,17 +291,6 @@ export default function ProfilePage() {
                 </span>
               </div>
             ))}
-          </div>
-
-          {/* Raw JSONB Schema Viewer */}
-          <div className="pt-2">
-            <div className="flex items-center justify-between text-[11px] font-bold text-slate-500 uppercase tracking-wider mb-1.5">
-              <span>PostgreSQL JSONB Sport Document:</span>
-              <span className="text-brand-bright font-mono">public.athlete_sports.sport_data</span>
-            </div>
-            <pre className="p-3 bg-slate-900 text-sky-300 rounded-xl text-xs font-mono overflow-x-auto shadow-inner">
-              {JSON.stringify(activeSport.sport_data, null, 2)}
-            </pre>
           </div>
 
         </div>
@@ -343,7 +332,7 @@ export default function ProfilePage() {
           <DialogHeader>
             <DialogTitle>Add Telemetry Attribute to {selectedSportToEdit.sport_name}</DialogTitle>
             <DialogDescription>
-              Custom JSONB attributes are dynamically structured for any sport metric.
+              Add a custom value for any sport metric.
             </DialogDescription>
           </DialogHeader>
 
@@ -376,7 +365,7 @@ export default function ProfilePage() {
             <Button variant="outline" size="sm" onClick={() => setEditStatModal(false)}>
               Cancel
             </Button>
-            <Button variant="bright" size="sm" onClick={handleAddCustomJsonbStat}>
+            <Button variant="bright" size="sm" onClick={handleAddCustomMetric}>
               Save to Athlete Profile
             </Button>
           </DialogFooter>
