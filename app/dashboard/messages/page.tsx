@@ -87,7 +87,7 @@ function getBotReply(message: string, channel: Channel) {
   }
 
   if (normalizedMessage.includes('hello') || normalizedMessage.includes('hi')) {
-    return `Hey! I’m AthleteOS Bot. I can help with ${channel.sportBadge.toLowerCase()} match timings, venues, and roster coordination.`
+    return `Hey! I’m AthleteOS Bot. I can help with ${(channel.sportBadge || 'sports').toLowerCase()} match timings, venues, and roster coordination.`
   }
 
   return 'Got it. I’m here to help with match timings, venues, and finding players. Try asking “When is the match?” or “Who can join?”'
